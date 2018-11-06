@@ -24,10 +24,15 @@ Now just go this url: http://127.0.0.1:5000/
 There you can try the following combinations on the url to query different types of coffe machines and coffe podes from the api:
 
 machine_types = ['Small', 'Large', 'Espresso']
+
 flavors = ['vanilla', 'caramel', 'psl', 'mocha', 'hazelnut']
 
 /coffee-machine/<string:machine_type>/
+
 /coffee-pods/<string:machine_type>/
+
 /coffee-pods/<string:machine_type>/<string:flavor>/
+
 /coffee-pods/<string:machine_type>/smallest-by-machine/
+
 /coffee-pods/<string:flavor>/smallest-by-flavor/
