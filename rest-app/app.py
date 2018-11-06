@@ -1,7 +1,9 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
-from json import dumps
+
+machine_types = ['Small', 'Large', 'Espresso']
+flavors = ['vanilla', 'caramel', 'psl', 'mocha', 'hazelnut']
 
 # Create engines for connecting to SQLite3.
 m = create_engine('sqlite:///machines.db')
@@ -15,48 +17,57 @@ class Machines(Resource):
         #Connect to databse
         conn = m.connect()
         #Perform query and return JSON data
-        query = conn.execute(f"SELECT {machine_type} FROM machines")
+        query = conn.execute(f"SELECT {machine_type} FROM machines;")
         return {'Machines': [i[0] for i in query.cursor.fetchall()]}
 
-class Pods(Resource):
-    def get(self, machine_type, flavor, smallest=None):
-        conn = p.connect()
-        query = conn.execute(f"SELECT {machine_type} FROM pods WHERE flavor='{flavor.lower()}'")
-        #Query the result and get cursor.Dumping that data to a JSON is looked by extension
-        result = {'Pods': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
-        return result
-
-class SmallestPods(Resource):
+class PodsByMachine(Resource):
     def get(self, machine_type):
-        if machine_type.lower() == "expresso":
-            smallest = 3
-        else:
-            smallest = 1
+        #Connect to databse
         conn = p.connect()
-        query = conn.execute(f"SELECT {machine_type} FROM pods WHERE packages='{smallest}'")
-        result = {'SmallestPods': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
+        #Perform query and return JSON data
+        query = conn.execute(f"SELECT {machine_type} FROM pods WHERE {machine_type} IS NOT '';")
+        return {'PodsByMachine': [i[0] for i in query.cursor.fetchall()]}
+
+class PodsByFlavorByMachine(Resource):
+    def get(self, machine_type, flavor):
+        conn = p.connect()
+        query = conn.execute(f"SELECT {machine_type} FROM pods WHERE flavor='{flavor}' \
+                            AND {machine_type} IS NOT '';")
+        result = {'PodsByFlavorByMachine': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
         return result
 
-class SmallestPerFlavor(Resource):
+class SmallestByMachine(Resource):
+    def get(self, machine_type):
+        conn = p.connect()
+        queries = []
+        results = []
+        for flavor in flavors:
+            query = conn.execute(f"SELECT {machine_type} FROM pods WHERE flavor='{flavor}' \
+                                AND {machine_type} IS NOT '' LIMIT 1;")
+            queries.append(query)
+        for query in queries:
+            results.append([dict(zip(tuple (query.keys()) ,i)) for i in query.cursor])
+        return {'SmallestByMachine': results}
+
+class SmallestByFlavor(Resource):
     def get(self, flavor):
         conn = p.connect()
+        queries = []
+        results = []
+        for machine in machine_types:
+            query = conn.execute(f"SELECT {machine} FROM pods WHERE flavor='{flavor}' \
+                                AND {machine} IS NOT '' LIMIT 1;")
+            queries.append(query)
+        for query in queries:
+            results.append([dict(zip(tuple (query.keys()) ,i)) for i in query.cursor])
+        return {'SmallestByFlavor': results}
 
-        query = conn.execute(f"SELECT small FROM pods WHERE packages=1 AND \
-            flavor='{flavor.lower()}' UNION SELECT large FROM pods WHERE \
-            packages=1 AND flavor='{flavor.lower()}' UNION SELECT expresso \
-            FROM pods WHERE packages=3 AND flavor='{flavor.lower()}'")
 
-        result = {'SmallestPerFlavor': [dict(zip(tuple (query.keys()) ,i)) for i in query.cursor]}
-        return result
-
-# localhost:5000/large
-api.add_resource(Machines, '/<string:machine_type>')
-# localhost:5000/large/caramel
-api.add_resource(Pods, '/<string:machine_type>/<string:flavor>')
-# localhost:5000/expresso/smallestpods
-api.add_resource(SmallestPods, '/<string:machine_type>/smallestpods')
-# localhost:5000/vanilla/smallestperflavor
-api.add_resource(SmallestPerFlavor, '/<string:flavor>/smallestperflavor')
+api.add_resource(Machines, '/coffee-machine/<string:machine_type>/')
+api.add_resource(PodsByMachine, '/coffee-pods/<string:machine_type>/')
+api.add_resource(PodsByFlavorByMachine, '/coffee-pods/<string:machine_type>/<string:flavor>/')
+api.add_resource(SmallestByMachine, '/coffee-pods/<string:machine_type>/smallest-by-machine/')
+api.add_resource(SmallestByFlavor, '/coffee-pods/<string:flavor>/smallest-by-flavor/')
 
 if __name__ == '__main__':
      app.run(debug=True)
