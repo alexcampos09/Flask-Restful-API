@@ -21,11 +21,11 @@ Follow these steps (don't use quotes for the commands):
 6 - Run the application: 'flask run'
 
 Now just go this url: http://127.0.0.1:5000/
-There you can try the following combinations on the url to query different types of coffe machines and coffe podes from the api:
+There you can try the following combinations on the url (after the word 'string:') to query different types of coffe machines and coffe podes from the api:
 
-machine_types = ['Small', 'Large', 'Espresso']
+machine_type = ['Small', 'Large', 'Espresso']
 
-flavors = ['vanilla', 'caramel', 'psl', 'mocha', 'hazelnut']
+flavor = ['vanilla', 'caramel', 'psl', 'mocha', 'hazelnut']
 
 /coffee-machine/<string:machine_type>/
 
