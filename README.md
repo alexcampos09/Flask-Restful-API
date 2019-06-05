@@ -6,7 +6,7 @@ SQLite and the Flask Framework.
 To run it in your machine you will need to install the libraries from the requirements.txt file.
 It is advisable to set up a Virtual Environment before you install the libraries.
 
-Follow these steps (don't use quotes for the commands):
+Follow these steps:
 
 1 - Clone the repo and use `pip install virtualenv` if you don't have it yet
 
