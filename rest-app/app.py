@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 machine_types = ['Small', 'Large', 'Espresso']
 flavors = ['vanilla', 'caramel', 'psl', 'mocha', 'hazelnut']
 
-# Create engines for connecting to SQLite3.
+# Create engines for connecting to SQLite3
 m = create_engine('sqlite:///machines.db')
 p = create_engine('sqlite:///pods.db')
 
